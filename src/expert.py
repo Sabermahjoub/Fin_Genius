@@ -209,10 +209,11 @@ def main(
     for elt in result.keys() :
         if elt == "rule_50_30_20":
             print("rule 50_30_20 : [essentials, discretionary, savings]")
-            print("recommended = " + result[elt]["recommended"])
-            print("actual = " + result[elt]["actual"])
+            print("recommended = ", result[elt]["recommended"])
+            print("actual = ", result[elt]["actual"])
         else :
             print(result[elt])
+    return result 
 
 
     # Test the 50-30-20 rule analysis
