@@ -8,10 +8,20 @@ import expert
 if "result" not in st.session_state:
     st.session_state.result = {}  # Initialize with None
 
+import streamlit as st
+
 @st.dialog("Expert System Result")
 def display_result(result):
+    st.markdown("""
+    <style>
+ 
+    .stDialog > div > div {
+        width: 53%;
+    }
+    </style>
+    """, unsafe_allow_html=True)
     # Add a header with nice styling
-    st.markdown("### 📊 Financial Analysis Results")
+    st.markdown("### 💹 Financial Analysis Results")
     st.markdown("---")
 
     # Create columns for better layout
@@ -20,22 +30,52 @@ def display_result(result):
             # Rule 50/30/20 section with better visualization
             st.markdown("#### 💰 Budget Rule Analysis (50/30/20)")
             
-            col1, col2 = st.columns(2)
+            # Create three columns for better alignment
+            col_labels, col_recommended, col_actual = st.columns([1.5, 2, 2])
             
-            with col1:
-                st.markdown("##### 📈 Recommended Distribution")
-                for category, value in zip(['Essentials', 'Discretionary', 'Savings'], result[elt]["recommended"]):
+            # Headers for each column
+            with col_labels:
+                st.markdown("##### Category")
+            with col_recommended:
+                st.markdown("##### 📈 Recommended")
+            with col_actual:
+                st.markdown("##### 📊 Current")
+            
+            # Display data for each category
+            categories = ['Essentials', 'Discretionary', 'Savings']
+            for category, recommended_value, actual_value in zip(
+                categories,
+                result[elt]["recommended"],
+                result[elt]["actual"]
+            ):
+                col1, col2, col3 = st.columns([1.5, 2, 2])
+                
+                # Category label
+                with col1:
+                    st.markdown(f"**{category}**")
+                
+                # Recommended value with delta
+                with col2:
+                    delta = actual_value - recommended_value
                     st.metric(
-                        label=category,
-                        value=f"{value:.1f}%",
-                        delta=f"{value - result[elt]['actual'][result[elt]['recommended'].index(value)]:.1f}%"
+                        label="",
+                        value=f"{recommended_value:.1f} TND",
+                        delta=f"{delta:.1f} TND"
                     )
-
-            with col2:
-                st.markdown("##### 📊 Your Current Distribution")
-                for category, value in zip(['Essentials', 'Discretionary', 'Savings'], result[elt]["actual"]):
-                    st.progress(value/100)
-                    st.caption(f"{category}: {value:.1f}%")
+                
+                # Actual value with progress bar
+                with col3:
+                    st.metric(
+                        label="",
+                        value=f"{actual_value:.1f} TND"
+                    )
+                    if recommended_value == 0:
+                        progress = 0.0
+                    else:
+                        progress = min(actual_value / recommended_value, 1.0)
+                    
+                    st.progress(progress)
+                    st.caption(f"Progress: {progress * 100:.1f}%")
 
             st.markdown("---")
             
@@ -56,6 +96,9 @@ def display_result(result):
         - **Green arrows** indicate you're meeting or exceeding targets
         - **Red arrows** show areas that need attention
         """)
+    if st.button("Submit"):
+        st.write("HELLLO")
+
 
 
 
@@ -75,7 +118,10 @@ def get_Timeline(date_string):
 
     return months_difference
 
-st.title("Advisor")
+st.title("💡 Financial Advisor")
+
+st.markdown("### 📋 Provide All Your Details Below")
+st.markdown("---")
 
 # Initialize session state for form validation
 if "errors" not in st.session_state:
@@ -93,42 +139,69 @@ options = st.multiselect(
     "Select all your expenses categories",
     expert.vital_expenses + expert.non_mandatory_expenses,
     [],
+    help="Choose all the categories of expenses applicable to you.",
 )
 
 # Form for inputs
 
 with st.form("ExpertForm"):
     # Income input
-    income = st.number_input(
-        "What's your monthly income", value=None, placeholder="Type a salary..."
-    )
-    if st.session_state.errors["income"]:
-        st.error(st.session_state.errors["income"])
+    st.markdown("#### 💸 Income and Savings")
+    col1, col2 = st.columns(2)
 
-    # Saving input
-    saving = st.number_input(
-        "What's your actual saving", value=None, placeholder="Type an amount..."
-    )
-    if st.session_state.errors["saving"]:
-        st.error(st.session_state.errors["saving"])
+    with col1:
+        # Income input
+        income = st.number_input(
+            "💰 What's your monthly income",
+            value=None,
+            placeholder="Enter your salary...",
+            help="Provide your net monthly income after taxes.",
+        )
+        if st.session_state.errors["income"]:
+            st.error(f"❌ {st.session_state.errors['income']}")
 
+    with col2:
+        # Saving input
+        saving = st.number_input(
+            "🐖 What's your current savings",
+            value=None,
+            placeholder="Enter your savings...",
+            help="Provide the total amount of your current savings.",
+        )
+        if st.session_state.errors["saving"]:
+            st.error(f"❌ {st.session_state.errors['saving']}")
+
+    st.markdown("#### 🏹 Financial Goals")
     # Goal description input
-    goal_description = st.text_input("What is your goal description", "")
+    goal_description = st.text_input(
+        "📌	Goal Description",
+        "",
+        placeholder="E.g., Buy a car, Save for a house...",
+        help="Describe your financial goal briefly.",
+    )
     if st.session_state.errors["goal_description"]:
-        st.error(st.session_state.errors["goal_description"])
+        st.error(f"❌ {st.session_state.errors['goal_description']}")
 
     # Savings target
     saving_target = st.number_input(
-        "What's your saving target", value=None, placeholder="Type an amount..."
+        "🤑	Target Amount",
+        value=None,
+        placeholder="Enter your target savings amount...",
+        help="Specify the total amount you aim to save for this goal.",
     )
     if st.session_state.errors["saving_target"]:
-        st.error(st.session_state.errors["saving_target"])
+        st.error(f"❌ {st.session_state.errors['saving_target']}")
 
     # Savings timeline
-    saving_timeline = st.date_input("What's the saving goal timeline", None)
+    saving_timeline = st.date_input(
+        "📅	Target Timeline",
+        None,
+        help="Pick the date by which you plan to achieve this goal.",
+    )
     if st.session_state.errors["saving_timeline"]:
-        st.error(st.session_state.errors["saving_timeline"])
+        st.error(f"❌ {st.session_state.errors['saving_timeline']}")
 
+    st.markdown("#### 📝 Expense Details")
     # Dictionaries to store expense data
     vital_expenses_data = {}
     non_vital_expenses_data = {}
@@ -136,10 +209,13 @@ with st.form("ExpertForm"):
     # Dynamically create inputs for expense categories
     for expense_category in options:
         expense_cost = st.number_input(
-            expense_category, value=None, placeholder="Type a cost..."
+            expense_category,
+            value=None,
+            placeholder="Enter the cost...",
+            help=f"Provide the cost associated with {expense_category}.",
         )
         if expense_category in st.session_state.errors["expenses"] and st.session_state.errors["expenses"][expense_category]:
-            st.error(st.session_state.errors["expenses"][expense_category])
+            st.error(f"❌ {st.session_state.errors['expenses'][expense_category]}")
         
         if expert.verifyExpenseIsMandatory(expense_category):
             vital_expenses_data[expense_category] = expense_cost
@@ -147,6 +223,7 @@ with st.form("ExpertForm"):
             non_vital_expenses_data[expense_category] = expense_cost
 
     # Submit button
+    st.markdown("---")
     submit_button = st.form_submit_button(label="Submit")
 
 # Handle form submission and validation
@@ -211,9 +288,9 @@ if submit_button:
             "data": result,
             "done": True
         }        
+        st.success("✅ Form submitted successfully! View results.")
         display_result(result)
-    
-    if("result" not in st.session_state):
-        print("HHHHHHHHHHHHHHHHHHHHHHHHHH")
-    # Force a rerun to show errors immediately
+
+    if(not st.session_state.result):
+        # Force a rerun to show errors immediately
         st.rerun()
