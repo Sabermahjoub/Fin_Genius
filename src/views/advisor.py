@@ -16,10 +16,10 @@ def display_result(result):
     <style>
  
     .stDialog > div > div {
-        width: 50%;
+        width: 53%;
     }
     </style>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
     # Add a header with nice styling
     st.markdown("### 💹 Financial Analysis Results")
     st.markdown("---")
@@ -48,7 +48,7 @@ def display_result(result):
                 result[elt]["recommended"],
                 result[elt]["actual"]
             ):
-                col1, col2, col3 = st.columns([1, 2, 2])
+                col1, col2, col3 = st.columns([1.5, 2, 2])
                 
                 # Category label
                 with col1:
