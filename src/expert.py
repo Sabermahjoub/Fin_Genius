@@ -59,7 +59,7 @@ class SavingsGoalTracker(KnowledgeEngine):
     @Rule(Fact(monthly_income=MATCH.income), Fact(monthly_expenses=MATCH.expenses))
     def calculate_savings_rate(self, income, expenses):
         """Calculates the monthly savings rate."""
-        savings_rate = income - expenses
+        savings_rate = max(income - expenses,0)
         result["savings_rate"] = (f"Calculated savings rate: {savings_rate}")
         self.declare(Fact(savings_rate=savings_rate))
 
@@ -80,6 +80,7 @@ class SavingsGoalTracker(KnowledgeEngine):
             result["feasibility_check"]="Goal is achievable only when considering your current savings."
         else:
             self.declare(Fact(suggest_adjustments=True))
+            self.declare(Fact(goal_achievable=False))
             result["feasibility_check"]=("Goal is not achievable within the given timeline. Consider budget adjustments.")
 
     @Rule(Fact(goal_achievable_without_saving=True), 
@@ -105,9 +106,14 @@ class SavingsGoalTracker(KnowledgeEngine):
     @Rule(Fact(goal_achievable=True), Fact(target_amount=MATCH.target), Fact(timeline=MATCH.timeline), Fact(current_savings=MATCH.savings))
     def generate_milestones(self, target, timeline, savings):
         """Generates monthly milestones to track progress."""
-        monthly_milestone = (target-savings) / timeline
-        self.declare(Fact(monthly_milestone=monthly_milestone))
-        result["milestone"]= (f"To reach your goal, save {monthly_milestone:.2f} per month.")
+        if(savings == target):
+            result["milestone"]= f"""Your savings match exactly your savings target. No need for further savings. \n"""
+        elif(savings > target):
+            result["milestone"]= f"""You have enough current savings to satisfy your goal. You will save {savings-target:.2f} TND . \n"""
+        else:
+            monthly_milestone = (target-savings) / timeline
+            self.declare(Fact(monthly_milestone=monthly_milestone))
+            result["milestone"]= (f"To reach your goal, save {monthly_milestone:.2f} per month.")
 
     # @Rule(Fact(current_savings=MATCH.savings), Fact(monthly_milestone=MATCH.milestone))
     # def track_progress(self, savings, milestone):
@@ -127,13 +133,16 @@ class SavingsGoalTracker(KnowledgeEngine):
     def suggest_budget_adjustments(self, target, savings, savings_rate, timeline):
         """Suggests budget adjustments to meet savings goals."""
         # TODO: Add how to adjust
-        total_needed = target - savings
-        extended_timeline = total_needed / savings_rate
-        monthly_needed = (total_needed / timeline)
-        additional_needed = monthly_needed - savings_rate
-        result["budget_adjustement"]= f"""Consider reducing discretionary expenses to increase your savings rate. \n
-                You are currently saving {monthly_needed:.2f} that means you need to save an additional {additional_needed:.2f} per month. \n
-                Otherwise, your goal will be reached in {extended_timeline:.2f}."""
+        if(savings_rate == 0) :
+            result["budget_adjustement"]= f"""This saving goal is impossible. Consider being more realistic or maybe steal a bank 😏. \n"""
+        else:
+            total_needed = target - savings
+            extended_timeline = total_needed / savings_rate
+            monthly_needed = (total_needed / timeline)
+            additional_needed = monthly_needed - savings_rate
+            result["budget_adjustement"]= f"""Consider reducing discretionary expenses to increase your savings rate. \n
+                    You are currently saving {monthly_needed:.2f} that means you need to save an additional {additional_needed:.2f} per month. \n
+                    Otherwise, your goal will be reached in {extended_timeline:.2f}."""
         
     @Rule (Fact(monthly_income=MATCH.income),
           Fact(vital_expenses = MATCH.vital_expenses),
@@ -152,7 +161,7 @@ def apply_50_30_20_rule(income, vital_expenses, non_vital_expenses):
 
     actual_essentials = sum(vital_expenses.values())
     actual_discretionary = sum(non_vital_expenses.values())
-    actual_savings = income - (actual_essentials + actual_discretionary)
+    actual_savings = max(income - (actual_essentials + actual_discretionary) , 0)
 
     return {
         "recommended": [essentials_limit, discretionary_limit, savings_limit],
