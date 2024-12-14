@@ -74,6 +74,7 @@ class SavingsGoalTracker(KnowledgeEngine):
         required_rate = target / timeline
         if savings_rate >= required_rate:
             self.declare(Fact(goal_achievable_without_saving=True))
+            self.declare(Fact(suggest_adjustments=False))
             result["feasibility_check"]="Goal is achievable without considering your current savings."
         elif savings >= (target-savings)/timeline:
             self.declare(Fact(goal_achievable=True))
