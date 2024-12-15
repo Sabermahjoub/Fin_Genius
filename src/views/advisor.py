@@ -8,24 +8,36 @@ import expert
 if "result" not in st.session_state:
     st.session_state.result = {}  # Initialize with None
 
-import streamlit as st
-
 @st.dialog("Expert System Result")
 def display_result(result):
     st.markdown("""
     <style>
- 
     .stDialog > div > div {
         width: 53%;
     }
     </style>
     """, unsafe_allow_html=True)
+    
     # Add a header with nice styling
     st.markdown("### 💹 Financial Analysis Results")
     st.markdown("---")
 
-    # Create columns for better layout
+    # First, display follow recommendations if they exist
+    if "follow_recommendations_success" in result:
+        st.markdown("#### 📋 Actual vs 50/30/20 rule :")
+        st.success(str(result["follow_recommendations_success"]), icon="✅")
+        st.markdown("---")
+    elif "follow_recommendations_warning" in result:
+        st.markdown("#### 📋 Actual vs 50/30/20 rule :")
+        st.warning(str(result["follow_recommendations_warning"]), icon="⚠️")
+        st.markdown("---")
+
+    # Then process the rest of the results
     for elt in result.keys():
+        # Skip follow recommendations as they've already been handled
+        if elt in ["follow_recommendations_success", "follow_recommendations_warning"]:
+            continue
+            
         if elt == "rule_50_30_20":
             # Rule 50/30/20 section with better visualization
             st.markdown("#### 💰 Budget Rule Analysis (50/30/20)")
@@ -50,11 +62,9 @@ def display_result(result):
             ):
                 col1, col2, col3 = st.columns([1.5, 2, 2])
                 
-                # Category label
                 with col1:
                     st.markdown(f"**{category}**")
                 
-                # Recommended value with delta
                 with col2:
                     delta = actual_value - recommended_value
                     st.metric(
@@ -63,17 +73,12 @@ def display_result(result):
                         delta=f"{delta:.1f} TND"
                     )
                 
-                # Actual value with progress bar
                 with col3:
                     st.metric(
                         label="",
                         value=f"{actual_value:.1f} TND"
                     )
-                    if recommended_value == 0:
-                        progress = 0.0
-                    else:
-                        progress = min(actual_value / recommended_value, 1.0)
-                    
+                    progress = 0.0 if recommended_value == 0 else min(actual_value / recommended_value, 1.0)
                     st.progress(progress)
                     st.caption(f"Progress: {progress * 100:.1f}%")
 
@@ -83,9 +88,9 @@ def display_result(result):
             # Other results with card-like presentation
             with st.container():
                 st.markdown(f"#### 📋 {elt.replace('_', ' ').title()}")
-                st.info(str(result[elt]))
+                st.info(str(result[elt]), icon="ℹ️")
                 st.markdown("---")
-    
+
     # Add helpful context at the bottom
     with st.expander("💡 Understanding Your Results"):
         st.markdown("""
@@ -96,6 +101,7 @@ def display_result(result):
         - **Green arrows** indicate you're meeting or exceeding targets
         - **Red arrows** show areas that need attention
         """)
+    
     if st.button("Submit"):
         st.write("HELLLO")
 

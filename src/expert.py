@@ -73,6 +73,7 @@ class SavingsGoalTracker(KnowledgeEngine):
         """Checks if the savings goal is achievable within the timeline."""
         required_rate = target / timeline
         if savings_rate >= required_rate:
+            self.declare(Fact(goal_achievable=True))
             self.declare(Fact(goal_achievable_without_saving=True))
             self.declare(Fact(suggest_adjustments=False))
             result["feasibility_check"]="Goal is achievable without considering your current savings."
@@ -164,6 +165,20 @@ def apply_50_30_20_rule(income, vital_expenses, non_vital_expenses):
     actual_discretionary = sum(non_vital_expenses.values())
     actual_savings = max(income - (actual_essentials + actual_discretionary) , 0)
 
+    if (actual_savings >= savings_limit):
+        if "follow_recommendations_warning" in result.keys():
+            del result["follow_recommendations_warning"]
+        print("ACTUAL SAVING ", actual_savings)
+        print("NOT  SAVING ", savings_limit)
+        follow_recommendations_message = "Your actual distribution is better than the one recommended by the 50/30/20 rule, Good job! \n"
+        if (actual_discretionary>discretionary_limit):
+            follow_recommendations_message += "You can save even more if you limit your discretionary expenses."
+        result["follow_recommendations_success"] = follow_recommendations_message
+    else :
+        if "follow_recommendations_success" in result.keys():
+            del result["follow_recommendations_success"]
+        result["follow_recommendations_warning"] = "We recommend you to follow the 50/30/20 rule to have more savings."
+    
     return {
         "recommended": [essentials_limit, discretionary_limit, savings_limit],
         "actual": [actual_essentials, actual_discretionary, actual_savings],
