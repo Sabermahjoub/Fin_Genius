@@ -1,0 +1,24 @@
+cookie:
+  expiry_days: 2
+  key: QXD8aWm80hsgM/3QJvYx2WwbFKMm0sGd6gC/M9qNdse0ilBq/nWN+0GgAk8ycwOr
+  name: fin_genius
+credentials:
+  usernames:
+    ali:
+      email: ali@gmail.com
+      failed_login_attempts: 0
+      first_name: ali
+      last_name: ali
+      logged_in: true
+      password: $2b$12$dw8FvRLLBkwnYATeb/eH4e0KtbnVGjMrYP7MZQ6cjPclfvZKBrmLC
+      password_hint: Ali@Ali123
+      roles: null
+    maha:
+      email: maha@gmail.com
+      failed_login_attempts: 0
+      first_name: maha
+      last_name: maha
+      logged_in: true
+      password: $2b$12$3lVG4aXXqGzPTsnyAHFOsuNqwUtxEHqlENQbluXTwU7iqDmKRDwKK
+      password_hint: Maha@Maha123
+      roles: null
