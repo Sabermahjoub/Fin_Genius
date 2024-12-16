@@ -3,6 +3,7 @@ from streamlit import session_state as ss
 import streamlit_authenticator as stauth
 import yaml
 from yaml.loader import SafeLoader
+import time
 
 CONFIG_FILENAME = 'config.yaml'
 
@@ -16,8 +17,10 @@ authenticator = stauth.Authenticate(
     config['cookie']['expiry_days'],
 )
 
-if "authentication_status" not in ss:
-    ss["authentication_status"] = None
+if "authentication_status" not in st.session_state:
+    st.session_state.authentication_status = None
+if "authenticated_user" not in st.session_state:
+    st.session_state.authenticated_user = None
 
 # Show login and register tabs if the user is not authenticated
 if ss["authentication_status"] is None or not ss["authentication_status"]:
@@ -32,6 +35,25 @@ if ss["authentication_status"] is None or not ss["authentication_status"]:
         #     authenticator.logout(location='main')    
         #     st.write(f'Welcome *{ss["name"]}*')
 
+        # Store the logged-in username in session_state (we will need this for the charts)
+        if ss["authentication_status"]:
+            username = ss.get("username", "")  # Safer way to get username
+            ss["authenticated_user"] = username  # Store in session state
+            st.markdown("""
+            <style>
+            [data-testid="stToast"] {
+                background-color: #4CAF50 !important; /* Green background */
+                color: white !important; /* White text */
+                border-radius: 8px; /* Rounded corners */
+                font-weight: bold; /* Bold text */
+            }
+            [data-testid="stToast"] svg {
+                fill: white !important; /* Ensure the icon color is white */
+            }
+            </style>
+            """, unsafe_allow_html=True)
+            st.toast(f'Welcome back, *{ss["authenticated_user"]}*!', icon='👋')
+
         if ss["authentication_status"] is False:
             st.error('Username/password is incorrect')
         elif ss["authentication_status"] is None:
@@ -42,6 +64,20 @@ if ss["authentication_status"] is None or not ss["authentication_status"]:
             try:
                 email_of_registered_user, username_of_registered_user, name_of_registered_user = authenticator.register_user()
                 if email_of_registered_user:
+                    st.markdown("""
+                    <style>
+                    [data-testid="stToast"] {
+                        background-color: #4CAF50 !important; /* Green background */
+                        color: white !important; /* White text */
+                        border-radius: 8px; /* Rounded corners */
+                        font-weight: bold; /* Bold text */
+                    }
+                    [data-testid="stToast"] svg {
+                        fill: white !important; /* Ensure the icon color is white */
+                    }
+                    </style>
+                    """, unsafe_allow_html=True)
+                    st.toast('Welcome. User registered successfully', icon='🎉')
                     st.success('User registered successfully')
             except Exception as e:
                 st.error(e)

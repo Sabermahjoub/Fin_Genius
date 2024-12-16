@@ -1,26 +1,32 @@
 {
-    "result": {
-        "follow_recommendations_success": "Your actual distribution is better than the one recommended by the 50/30/20 rule, Good job! \n",
-        "rule_50_30_20": {
-            "recommended": [
-                1000.0,
-                600.0,
-                400.0
-            ],
-            "actual": [
-                1500.0,
-                0,
-                500.0
-            ]
+    "test": {
+        "result": {
+            "follow_recommendations_success": "Your actual distribution is better than the one recommended by the 50/30/20 rule, Good job! \n",
+            "rule_50_30_20": {
+                "recommended": [
+                    500.0,
+                    300.0,
+                    200.0
+                ],
+                "actual": [
+                    600.0,
+                    100.0,
+                    300.0
+                ]
+            },
+            "savings_rate": "Calculated savings rate: 300.0",
+            "feasibility_check": "Goal is achievable without considering your current savings.",
+            "budget_adjustement": "Consider reducing discretionary expenses to increase your savings rate. You need to monthly save 350.00, but you are only saving 200.00 that means you need to save an additional 150.00 per month.\n            Otherwise, your goal will be reached, approximately, in 2026-01-16 20:39:57.256094.",
+            "milestone": "To reach your goal, save 100.00 per month.",
+            "savings_exceeds_milestone": "You can save more than the required amount."
         },
-        "savings_rate": "Calculated savings rate: 500.0",
-        "feasibility_check": "Goal is not achievable within the given timeline. Consider budget adjustments.",
-        "budget_adjustement": "Consider reducing discretionary expenses to increase your savings rate. \n\n                    You are currently saving 600.00 that means you need to save an additional 100.00 per month. \n\n                    Otherwise, your goal will be reached in 9.60."
-    },
-    "vital_expenses": {
-        "insurance": 500.0,
-        "education": 1000.0
-    },
-    "non_vital_expenses": {},
-    "income": 2000.0
+        "vital_expenses": {
+            "medical": 100.0,
+            "education": 500.0
+        },
+        "non_vital_expenses": {
+            "gaming": 100.0
+        },
+        "income": 1000.0
+    }
 }

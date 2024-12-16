@@ -22,3 +22,12 @@ credentials:
       password: $2b$12$3lVG4aXXqGzPTsnyAHFOsuNqwUtxEHqlENQbluXTwU7iqDmKRDwKK
       password_hint: Maha@Maha123
       roles: null
+    test:
+      email: test.test@gmail.com
+      failed_login_attempts: 0
+      first_name: Testing
+      last_name: test
+      logged_in: true
+      password: $2b$12$N.S.CCUZwb3Ua3xFgSAVn.iBSrDWDxkLUX03JEPpfHSR0.zBr3QFK
+      password_hint: Test@123456
+      roles: null
