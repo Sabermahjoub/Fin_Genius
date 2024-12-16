@@ -14,12 +14,17 @@ advisor_page = st.Page(
     title="Advisor",
     icon=":material/smart_toy:"
 )
+charts_page = st.Page(
+    page="./views/charts.py",
+    title="Charts",
+    icon=":material/smart_toy:"
+)
 
 # --- Navigation ---
 pg = st.navigation(pages=
     {
         "info": [home_page],
-        "links":[advisor_page]
+        "links":[advisor_page, charts_page]
     })
 
 # st.logo("./assets/codingisfun_logo.png")
