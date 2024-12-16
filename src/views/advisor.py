@@ -8,6 +8,8 @@ import expert
 
 if "result" not in st.session_state:
     st.session_state.result = {}  # Initialize with None
+    # f = open('result.json', 'r+')
+    # f.truncate(0)
 
 @st.dialog("Expert System Result")
 def display_result(result):
@@ -102,9 +104,6 @@ def display_result(result):
         - **Green arrows** indicate you're meeting or exceeding targets
         - **Red arrows** show areas that need attention
         """)
-    
-    if st.button("Submit"):
-        st.write("HELLLO")
 
 
 
@@ -301,6 +300,7 @@ if submit_button:
         data["result"]=result
         data["vital_expenses"]=vital_expenses_data
         data["non_vital_expenses"]=non_vital_expenses_data
+        data["income"]=income
         # Serializing json
         json_object = json.dumps(data, indent=4)
         
