@@ -9,6 +9,8 @@ import os
 st.title("📊 Charts Dashboard")
 st.write("Welcome to the Charts Dashboard! Explore insights with interactive charts.")
 
+username = st.session_state["authenticated_user"]
+
 
 def vital_expenses_by_category(data):
     st.subheader("Vital Expenses by category")
@@ -90,7 +92,7 @@ def income_pie_chart(data):
         title="Income Proportion by Category",
         color_discrete_sequence=px.colors.sequential.RdBu
     )
-    st.plotly_chart(proportion_chart, use_container_width=True, key=1)
+    st.plotly_chart(proportion_chart, use_container_width=True)
 
 def rule_50_30_20_chart(data):
 
@@ -142,16 +144,18 @@ try:
             data = json.load(file)
         
         # Check if data is an empty object or invalid
-        if not data:
+
+        if not data or not data[username]:
             st.warning("Please fill in the form on the advisor page to be able to visualize charts", icon="⚠️")
+
         else:
             # chart logic
-            rule_50_30_20_chart(data)
-            if data.get("vital_expenses"):  # Safely check if key exists and is not empty
-                vital_expenses_by_category(data)
-            if data.get("non_vital_expenses"):  # Safely check if key exists and is not empty
-                non_vital_expenses_by_category(data)
-            income_pie_chart(data)
+            rule_50_30_20_chart(data[username])
+            if data[username].get("vital_expenses"):  # Safely check if key exists and is not empty
+                vital_expenses_by_category(data[username])
+            if data[username].get("non_vital_expenses"):  # Safely check if key exists and is not empty
+                non_vital_expenses_by_category(data[username])
+            income_pie_chart(data[username])
 
 except json.JSONDecodeError:
     st.write("Error: result.json is not properly formatted. Please check the file content.")

@@ -110,8 +110,6 @@ def display_result(result):
         """)
 
 
-
-
 def get_Timeline(date_string):
     # Get the current date
     current_date = datetime.now()
@@ -152,8 +150,39 @@ options = st.multiselect(
     help="Choose all the categories of expenses applicable to you.",
 )
 
-# Form for inputs
+def save_user_data(username, result, vital_expenses_data, non_vital_expenses_data, income):
+    # First, read existing data if file exists
+    existing_data = {}
+    if os.path.exists("result.json"):
+        try:
+            with open("result.json", "r") as infile:
+                existing_data = json.load(infile)
+        except json.JSONDecodeError:
+            # Handle case where file exists but is empty or invalid
+            existing_data = {}
 
+    user_data = {
+        "result": result,
+        "vital_expenses": vital_expenses_data,
+        "non_vital_expenses": non_vital_expenses_data,
+        "income": income
+    }
+
+    # Update the existing data with new user data
+    if username not in existing_data:
+        existing_data[username] = {}
+    existing_data[username].update(user_data)
+
+    # Write the updated data back to file
+    try:
+        with open("result.json", "w") as outfile:
+            json.dump(existing_data, outfile, indent=4)
+        return True, "Data saved successfully"
+    except Exception as e:
+        return False, f"Error saving data: {str(e)}"
+
+
+# Form for inputs
 with st.form("ExpertForm"):
     # Income input
     st.markdown("#### 💸 Income and Savings")
@@ -315,17 +344,8 @@ if submit_button:
         time.sleep(1)
         st.success("✅ Form submitted successfully! View results.")
         display_result(result)
-        data ={}
-        data["result"]=result
-        data["vital_expenses"]=vital_expenses_data
-        data["non_vital_expenses"]=non_vital_expenses_data
-        data["income"]=income
-        # Serializing json
-        json_object = json.dumps(data, indent=4)
-        
-        # Writing to sample.json
-        with open("result.json", "w") as outfile:
-            outfile.write(json_object)
+
+        save_user_data(st.session_state["authenticated_user"], result, vital_expenses_data, non_vital_expenses_data, income)
     else :
         st.rerun()
     if(not st.session_state.result):
