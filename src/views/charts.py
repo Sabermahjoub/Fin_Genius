@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import json , re
 import plotly.express as px
-
+import os
 
 
 # Page Title
@@ -96,6 +96,8 @@ def rule_50_30_20_chart(data):
 
     #Grouped Bar chart
     st.subheader("Rule 50_30_20 - Actual vs Recommended")
+
+    st.info(data["result"]["follow_recommendations_warning"])
     chart_data = pd.DataFrame({
         "Category": ["Essentials", "Discretionary", "Savings"],
         "Actual": data["result"]["rule_50_30_20"]["actual"],
@@ -119,17 +121,38 @@ def rule_50_30_20_chart(data):
     st.plotly_chart(bar_chart, use_container_width=True)
 
 # Open and read the JSON file
-with open('result.json', 'r') as file:
-    data = json.load(file)
-    if not data:
-        st.write("Please fill in the form in advisor page to be able to visualize charts")
+# Check if the file is empty or invalid
+def is_file_empty_or_invalid(file_path):
+    if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
+        return False
+    return True
+
+try:
+    file_path = 'result.json'
+
+    # Check for empty file
+    if is_file_empty_or_invalid(file_path):
+        st.warning("Please fill in the form on the advisor page to be able to visualize charts", icon="⚠️")
     else:
-        rule_50_30_20_chart(data)
-        if data["vital_expenses"]:
-            vital_expenses_by_category(data)
-        if data["non_vital_expenses"]:
-            non_vital_expenses_by_category(data)
-        income_pie_chart(data)
+        with open(file_path, 'r') as file:
+            data = json.load(file)
+        
+        # Check if data is an empty object or invalid
+        if not data:
+            st.warning("Please fill in the form on the advisor page to be able to visualize charts", icon="⚠️")
+        else:
+            # chart logic
+            rule_50_30_20_chart(data)
+            if data.get("vital_expenses"):  # Safely check if key exists and is not empty
+                vital_expenses_by_category(data)
+            if data.get("non_vital_expenses"):  # Safely check if key exists and is not empty
+                non_vital_expenses_by_category(data)
+            income_pie_chart(data)
+
+except json.JSONDecodeError:
+    st.write("Error: result.json is not properly formatted. Please check the file content.")
+except Exception as e:
+    st.write(f"An unexpected error occurred: {e}")
 
 
 # Footer

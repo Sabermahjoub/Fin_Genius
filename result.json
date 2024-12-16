@@ -1,0 +1,29 @@
+{
+    "result": {
+        "follow_recommendations_warning": "We recommend you to follow the 50/30/20 rule to have more savings.",
+        "rule_50_30_20": {
+            "recommended": [
+                1000.0,
+                600.0,
+                400.0
+            ],
+            "actual": [
+                1000.0,
+                800.0,
+                200.0
+            ]
+        },
+        "savings_rate": "Calculated savings rate: 200.0",
+        "feasibility_check": "Goal is not achievable within the given timeline. Consider budget adjustments.",
+        "budget_adjustement": "Consider reducing discretionary expenses to increase your savings rate. \n\n                    You are currently saving 600.00 that means you need to save an additional 400.00 per month. \n\n                    Otherwise, your goal will be reached in 24.00."
+    },
+    "vital_expenses": {
+        "utilities": 500.0,
+        "transportation": 200.0,
+        "pet_expenses": 300.0
+    },
+    "non_vital_expenses": {
+        "leisures": 800.0
+    },
+    "income": 2000.0
+}
