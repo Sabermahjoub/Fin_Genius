@@ -15,6 +15,11 @@ authenticator = stauth.Authenticate(
     config['cookie']['key'],
     config['cookie']['expiry_days'],
 )
+charts_page = st.Page(
+    page="./views/charts.py",
+    title="Charts",
+    icon=":material/smart_toy:"
+)
 
 if "authentication_status" not in ss:
     ss["authentication_status"] = None
@@ -67,10 +72,15 @@ elif ss["authentication_status"] is True:
         title="Advisor",
         icon="🤖"
     )
+    charts_page = st.Page(
+        page="./views/charts.py",
+        title="Charts",
+        icon="📊"
+    )
 
     # --- Navigation ---
     pg = st.navigation(pages=
-        [home_page, advisor_page]
+        [home_page, advisor_page, charts_page]
         )
     st.sidebar.write("") 
     st.sidebar.write("") 
@@ -82,5 +92,3 @@ elif ss["authentication_status"] is True:
     # st.logo("./assets/codingisfun_logo.png")
     st.sidebar.text("Made with ❤️ by FinGenius Team")
     pg.run()
-
-
