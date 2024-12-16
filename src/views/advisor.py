@@ -2,6 +2,7 @@ import streamlit as st
 from datetime import datetime
 import sys, os
 import json
+import time
 
 sys.path.append(os.path.abspath("src"))
 import expert
@@ -15,6 +16,9 @@ if "result" not in st.session_state:
 def display_result(result):
     st.markdown("""
     <style>
+    [data-testid="stToast"] {
+        z-index: 10000 !important; /* High z-index to ensure it's on top */
+    }
     .stDialog > div > div {
         width: 53%;
     }
@@ -294,6 +298,21 @@ if submit_button:
             "data": result,
             "done": True
         }        
+        st.markdown("""
+            <style>
+            [data-testid="stToast"] {
+                background-color: #4CAF50 !important; /* Green background */
+                color: white !important; /* White text */
+                border-radius: 8px; /* Rounded corners */
+                font-weight: bold; /* Bold text */
+            }
+            [data-testid="stToast"] svg {
+                fill: white !important; /* Ensure the icon color is white */
+            }
+            </style>
+        """, unsafe_allow_html=True)
+        st.toast('Charts submitted successfully! View results.', icon='✅')
+        time.sleep(1)
         st.success("✅ Form submitted successfully! View results.")
         display_result(result)
         data ={}
@@ -307,6 +326,8 @@ if submit_button:
         # Writing to sample.json
         with open("result.json", "w") as outfile:
             outfile.write(json_object)
+    else :
+        st.rerun()
     if(not st.session_state.result):
         # Force a rerun to show errors immediately
         st.rerun()

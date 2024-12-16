@@ -97,7 +97,11 @@ def rule_50_30_20_chart(data):
     #Grouped Bar chart
     st.subheader("Rule 50_30_20 - Actual vs Recommended")
 
-    st.info(data["result"]["follow_recommendations_warning"])
+    if data["result"].get("follow_recommendations_warning"):
+        st.warning(data["result"]["follow_recommendations_warning"], icon="⚠️")
+    elif data["result"].get("follow_recommendations_success"):
+        st.success(data["result"]["follow_recommendations_success"], icon="✅")
+
     chart_data = pd.DataFrame({
         "Category": ["Essentials", "Discretionary", "Savings"],
         "Actual": data["result"]["rule_50_30_20"]["actual"],
