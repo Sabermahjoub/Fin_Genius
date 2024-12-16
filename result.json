@@ -1,0 +1,27 @@
+{
+    "result": {
+        "follow_recommendations_warning": "We recommend you to follow the 50/30/20 rule to have more savings.",
+        "rule_50_30_20": {
+            "recommended": [
+                600.0,
+                360.0,
+                240.0
+            ],
+            "actual": [
+                1650.0,
+                0,
+                0
+            ]
+        },
+        "savings_rate": "Calculated savings rate: 0",
+        "feasibility_check": "Goal is achievable only when considering your current savings.",
+        "milestone": "To reach your goal, save 19.44 per month."
+    },
+    "vital_expenses": {
+        "transportation": 250.0,
+        "groceries": 400.0,
+        "utilities": 300.0,
+        "rent": 700.0
+    },
+    "non_vital_expenses": {}
+}
