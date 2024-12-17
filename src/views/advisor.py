@@ -25,7 +25,6 @@ def display_result(result):
     </style>
     """, unsafe_allow_html=True)
     
-    # Add a header with nice styling
     st.markdown("### 💹 Financial Analysis Results")
     st.markdown("---")
 
@@ -41,8 +40,9 @@ def display_result(result):
 
     # Then process the rest of the results
     for elt in result.keys():
+
         # Skip follow recommendations as they've already been handled
-        if elt in ["follow_recommendations_success", "follow_recommendations_warning"]:
+        if elt in ["follow_recommendations_success", "follow_recommendations_warning", "goal_description", "budget_adjustement_solution_1", "budget_adjustement_solution_2"]:
             continue
             
         if elt == "rule_50_30_20":
@@ -90,13 +90,16 @@ def display_result(result):
                     st.caption(f"Progress: {progress * 100:.1f}%")
 
             st.markdown("---")
-            
-        else:
-            # Other results with card-like presentation
-            with st.container():
-                st.markdown(f"#### 📋 {elt.replace('_', ' ').title()}")
-                st.info(str(result[elt]), icon="ℹ️")
-                st.markdown("---")
+
+    # Process all other results except rule_50_30_20
+    for elt in result.keys():
+        if elt in ["follow_recommendations_success", "follow_recommendations_warning", "goal_description", "budget_adjustement_solution_1", "budget_adjustement_solution_2", "rule_50_30_20"]:
+            continue
+        # Other results with card-like presentation
+        with st.container():
+            st.markdown(f"#### 📋 {elt.replace('_', ' ').title()}")
+            st.info(str(result[elt]), icon="ℹ️")
+            st.markdown("---")   
 
     # Add helpful context at the bottom
     with st.expander("💡 Understanding Your Results"):
@@ -267,6 +270,7 @@ with st.form("ExpertForm"):
 
 # Handle form submission and validation
 if submit_button:
+    result = {}
 # Reset error messages
     st.session_state.errors = {
         "income": "",

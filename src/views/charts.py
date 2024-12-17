@@ -12,6 +12,49 @@ st.write("Welcome to the Charts Dashboard! Explore insights with interactive cha
 username = st.session_state["authenticated_user"]
 
 
+# Chart for solution proposed from the expert advisor (with timelines)
+def display_line_charts(data):
+    print()
+    st.subheader("Proposed monthly savings with timeline")
+    
+    # Extract the two saving plans and their respective lengths
+    length_1 = int(data["budget_adjustement_solution_1"][1][-2:])
+    length_2 = int(data["budget_adjustement_solution_2"][1][-2:])
+    
+    # Determine the maximum length
+    max_length = max(length_1, length_2)
+    
+    # Fill shorter arrays with 0
+    first_saving_plan = [data["budget_adjustement_solution_1"][0]] * length_1 + [0] * (max_length - length_1)
+    second_saving_plan = [data["budget_adjustement_solution_2"][0]] * length_2 + [0] * (max_length - length_2)
+    
+    # Create a DataFrame
+    chart_data = pd.DataFrame(
+        {
+            "Month": list(range(1, max_length + 1)),  # X-axis for months
+            "Needed savings per month": first_saving_plan,
+            "Current savings per month": second_saving_plan,
+        }
+    )
+     # Create a Plotly chart with axis labels
+    fig = px.line(
+        chart_data, 
+        x="Month", 
+        y=["Needed savings per month", "Current savings per month"],
+        labels={"value": "Savings Amount (TND)", "variable": "Saving Plan"},
+        title=data["goal_description"]
+    )
+    fig.update_yaxes(title_text="Savings Amount (TND)")  # Y-axis label
+    fig.update_xaxes(title_text="Months")             # X-axis label
+    
+    st.plotly_chart(fig)
+    
+    # Plot the line chart
+    # st.line_chart(chart_data, x="Month", y=["First saving plan", "Second saving plan"])
+
+
+
+
 def vital_expenses_by_category(data):
     st.subheader("Vital Expenses by category")
     chart_data = pd.DataFrame(
@@ -151,6 +194,8 @@ try:
         else:
             # chart logic
             rule_50_30_20_chart(data[username])
+            if data[username].get("result").get("budget_adjustement_solution_1") and data[username].get("result").get("budget_adjustement_solution_2"):
+                display_line_charts(data[username]["result"])
             if data[username].get("vital_expenses"):  # Safely check if key exists and is not empty
                 vital_expenses_by_category(data[username])
             if data[username].get("non_vital_expenses"):  # Safely check if key exists and is not empty

@@ -1,6 +1,43 @@
 {
     "test": {
         "result": {
+            "goal_description": "Buy a car",
+            "savings_rate": "Calculated savings rate: 1200.0",
+            "feasibility_check": "Goal is achievable without considering your current savings.",
+            "budget_adjustement_solution_1": [
+                600.0,
+                "2025-08"
+            ],
+            "budget_adjustement_solution_2": [
+                200.0,
+                "2026-12"
+            ],
+            "budget_adjustement": " You need to monthly save 600.00, but you are only saving 200.00 that means you need to save an additional 400.00 per month.\n            Otherwise, your goal will be reached, approximately, in 2026-12.",
+            "follow_recommendations_success": "Your actual distribution is better than the one recommended by the 50/30/20 rule, Good job! \n",
+            "rule_50_30_20": {
+                "recommended": [
+                    1000.0,
+                    600.0,
+                    400.0
+                ],
+                "actual": [
+                    800.0,
+                    0,
+                    1200.0
+                ]
+            },
+            "milestone": "To reach your goal, save 600.00 per month.",
+            "savings_exceeds_milestone": "You can save more than the required amount."
+        },
+        "vital_expenses": {
+            "utilities": 500.0,
+            "transportation": 300.0
+        },
+        "non_vital_expenses": {},
+        "income": 2000.0
+    },
+    "null": {
+        "result": {
             "follow_recommendations_success": "Your actual distribution is better than the one recommended by the 50/30/20 rule, Good job! \n",
             "rule_50_30_20": {
                 "recommended": [
@@ -10,23 +47,27 @@
                 ],
                 "actual": [
                     600.0,
-                    100.0,
-                    300.0
+                    0,
+                    400.0
                 ]
             },
-            "savings_rate": "Calculated savings rate: 300.0",
-            "feasibility_check": "Goal is achievable without considering your current savings.",
-            "budget_adjustement": "Consider reducing discretionary expenses to increase your savings rate. You need to monthly save 350.00, but you are only saving 200.00 that means you need to save an additional 150.00 per month.\n            Otherwise, your goal will be reached, approximately, in 2026-01-16 20:39:57.256094.",
-            "milestone": "To reach your goal, save 100.00 per month.",
-            "savings_exceeds_milestone": "You can save more than the required amount."
+            "savings_rate": "Calculated savings rate: 400.0",
+            "feasibility_check": "Goal is not achievable within the given timeline. Consider budget adjustments.",
+            "budget_adjustement_solution_1": [
+                600.0,
+                "2025-08"
+            ],
+            "budget_adjustement_solution_2": [
+                400.0,
+                "2025-12"
+            ],
+            "budget_adjustement": " You need to monthly save 600.00, but you are only saving 400.00 that means you need to save an additional 200.00 per month.\n            Otherwise, your goal will be reached, approximately, in 2025-12."
         },
         "vital_expenses": {
-            "medical": 100.0,
-            "education": 500.0
+            "utilities": 500.0,
+            "insurance": 100.0
         },
-        "non_vital_expenses": {
-            "gaming": 100.0
-        },
+        "non_vital_expenses": {},
         "income": 1000.0
     }
 }
