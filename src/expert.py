@@ -7,7 +7,7 @@ from dateutil.relativedelta import relativedelta
 # My salary is : 2500Dt 
 # I would like to save 3000Dt (Target amount), Goal description (vacation : going to Japan)
 # This goal should be achieved by June 2025
-# My current savings are : 100Dt (Zaweli allah ghaleb)
+# My current savings are : 100Dt 
 # I spend on rent : 800Dt, on groceries 300Dt, on transport 100Dt, leisure 250Dt, animal needs : 100Dt 
 
 # -- Expert system output --
@@ -20,7 +20,6 @@ from dateutil.relativedelta import relativedelta
 # 5 - progress tracking
 # 6- charts
 
-result = {}
 
 # List of Mandatory (Vital) Expenses
 vital_expenses = [
@@ -56,16 +55,16 @@ class Finances(Fact):
     pass
 
 class SavingsGoalTracker(KnowledgeEngine):
-    # def __init__(self):
-    #     super().__init__()
-    #     self.result = {}
+    def __init__(self):
+        super().__init__()
+        self.result = {}
 
     @Rule(Fact(goal_description=MATCH.goal), Fact(monthly_income=MATCH.income), Fact(monthly_expenses=MATCH.expenses))
     def calculate_savings_rate(self, goal, income, expenses):
         """Calculates the monthly savings rate."""
         savings_rate = max(income - expenses,0)
-        result["goal_description"]=goal
-        result["savings_rate"] = (f"Calculated savings rate: {savings_rate}")
+        self.result["goal_description"]=goal
+        self.result["savings_rate"] = (f"Calculated savings rate: {savings_rate}")
         self.declare(Fact(savings_rate=savings_rate))
 
     @Rule(
@@ -81,14 +80,14 @@ class SavingsGoalTracker(KnowledgeEngine):
             self.declare(Fact(goal_achievable=True))
             self.declare(Fact(goal_achievable_without_saving=True))
             self.declare(Fact(suggest_adjustments=False))
-            result["feasibility_check"]="Goal is achievable without considering your current savings."
+            self.result["feasibility_check"]="Goal is achievable without considering your current savings."
         elif savings >= (target-savings)/timeline:
             self.declare(Fact(goal_achievable=True))
-            result["feasibility_check"]="Goal is achievable only when considering your current savings."
+            self.result["feasibility_check"]="Goal is achievable only when considering your current savings."
         else:
             self.declare(Fact(suggest_adjustments=True))
             self.declare(Fact(goal_achievable=False))
-            result["feasibility_check"]=("Goal is not achievable within the given timeline. Consider budget adjustments.")
+            self.result["feasibility_check"]=("Goal is not achievable within the given timeline. Consider budget adjustments.")
 
     @Rule(Fact(goal_achievable_without_saving=True), 
           Fact(target_amount=MATCH.target), 
@@ -102,25 +101,25 @@ class SavingsGoalTracker(KnowledgeEngine):
         self.declare(Fact(monthly_milestone=monthly_milestone_without_savings))
         if savings_rate > monthly_milestone:
             self.declare(Fact(savings_exceeds_milestone=True))
-        result["milestone"]= (f"""To reach your goal, you need to save {monthly_milestone_without_savings:.2f} per month.
+        self.result["milestone"]= (f"""To reach your goal, you need to save {monthly_milestone_without_savings:.2f} per month.
             When considering your current savings, you can reach your goal saving only {monthly_milestone:.2f} per month.""")
         
     @Rule(Fact(savings_exceeds_milestone=True))
     def savings_exceeds_milestone(self):
         """Savings exceeds the milestone."""
-        result["savings_exceeds_milestone"]="You can save more than the required amount."
+        self.result["savings_exceeds_milestone"]="You can save more than the required amount."
 
     @Rule(Fact(goal_achievable=True), Fact(target_amount=MATCH.target), Fact(timeline=MATCH.timeline), Fact(current_savings=MATCH.savings))
     def generate_milestones(self, target, timeline, savings):
         """Generates monthly milestones to track progress."""
         if(savings == target):
-            result["milestone"]= f"""Your savings match exactly your savings target. No need for further savings. \n"""
+            self.result["milestone"]= f"""Your savings match exactly your savings target. No need for further savings. \n"""
         elif(savings > target):
-            result["milestone"]= f"""You have enough current savings to satisfy your goal. You will save {savings-target:.2f} TND . \n"""
+            self.result["milestone"]= f"""You have enough current savings to satisfy your goal. You will save {savings-target:.2f} TND . \n"""
         else:
             monthly_milestone = (target-savings) / timeline
             self.declare(Fact(monthly_milestone=monthly_milestone))
-            result["milestone"]= (f"To reach your goal, save {monthly_milestone:.2f} per month.")
+            self.result["milestone"]= (f"To reach your goal, save {monthly_milestone:.2f} per month.")
 
     # @Rule(Fact(current_savings=MATCH.savings), Fact(monthly_milestone=MATCH.milestone))
     # def track_progress(self, savings, milestone):
@@ -135,12 +134,12 @@ class SavingsGoalTracker(KnowledgeEngine):
           Fact(vital_expenses = MATCH.vital_expenses),
           Fact(non_vital_expenses = MATCH.non_vital_expenses))
     def calculate_rule(self, income, vital_expenses, non_vital_expenses):
-        rule_50_30_20 = apply_50_30_20_rule(income, vital_expenses, non_vital_expenses)
+        rule_50_30_20 = apply_50_30_20_rule(self.result, income, vital_expenses, non_vital_expenses)
         if rule_50_30_20["actual"][0] > 1.5*rule_50_30_20["recommended"][0]:
             self.declare(Fact(essentials_over=True))
         if rule_50_30_20["actual"][1] < 0.3*rule_50_30_20["recommended"][1]:
             self.declare(Fact(discretionary_under_30=True))
-        result["rule_50_30_20"] = rule_50_30_20
+        self.result["rule_50_30_20"] = rule_50_30_20
 
     @Rule(Fact(suggest_adjustments=True), 
           Fact(savings_rate=MATCH.savings_rate),
@@ -153,7 +152,7 @@ class SavingsGoalTracker(KnowledgeEngine):
         """Suggests budget adjustments to meet savings goals."""
         
         if(savings_rate == 0) :
-            result["budget_adjustement"]= f"""This saving goal is impossible. Consider being more realistic or maybe steal a bank 😏. \n"""
+            self.result["budget_adjustement"]= f"""This saving goal is impossible. Consider being more realistic or maybe steal a bank 😏. \n"""
         else:
             total_needed = target - savings
             monthly_needed = total_needed / timeline
@@ -167,22 +166,19 @@ class SavingsGoalTracker(KnowledgeEngine):
                 reduce_disctretionary = "Consider reducing discretionary expenses to increase your savings rate."
             else :
                 reduce_disctretionary = ""
-            # if essentials_over:
-            #     result["budget_adjustement"]+= """You are overspending on essentials. You need to adjust"""
-            # if not discretionary_under_30:
-            #     result["budget_adjustement"]+= """Consider reducing discretionary expenses to increase your savings rate."""
-            result["budget_adjustement_solution_1"] = [monthly_needed, (datetime.now() + relativedelta(months=timeline)).strftime("%Y-%m")]
-            result["budget_adjustement_solution_2"] = [savings_rate,formatted_date]
-            print("First solution  : ", result["budget_adjustement_solution_1"])
-            print("Second solution  : ", result["budget_adjustement_solution_2"])
 
-            result["budget_adjustement"]= f"""{reduce_disctretionary} You need to monthly save {monthly_needed:.2f}, but you are only saving {savings_rate:.2f} that means you need to save an additional {additional_needed:.2f} per month.
+            self.result["budget_adjustement_solution_1"] = [monthly_needed, (datetime.now() + relativedelta(months=timeline)).strftime("%Y-%m")]
+            self.result["budget_adjustement_solution_2"] = [savings_rate,formatted_date]
+            print("First solution  : ", self.result["budget_adjustement_solution_1"])
+            print("Second solution  : ", self.result["budget_adjustement_solution_2"])
+
+            self.result["budget_adjustement"]= f"""{reduce_disctretionary} You need to monthly save {monthly_needed:.2f}, but you are only saving {savings_rate:.2f} that means you need to save an additional {additional_needed:.2f} per month.
             Otherwise, your goal will be reached, approximately, in {formatted_date}."""
 
 def verifyExpenseIsMandatory(expense_name):
     return expense_name in vital_expenses
 
-def apply_50_30_20_rule(income, vital_expenses, non_vital_expenses):
+def apply_50_30_20_rule(result,income, vital_expenses, non_vital_expenses):
     """Applies the 50-30-20 rule to classify spending."""
     essentials_limit = 0.5 * income
     discretionary_limit = 0.3 * income
@@ -262,14 +258,14 @@ def main(
     engine.run()
 
     print("\nExpert System Output:")
-    for elt in result.keys() :
+    for elt in engine.result.keys() :
         if elt == "rule_50_30_20":
             print("rule 50_30_20 : [essentials, discretionary, savings]")
-            print("recommended = ", result[elt]["recommended"])
-            print("actual = ", result[elt]["actual"])
+            print("recommended = ", engine.result[elt]["recommended"])
+            print("actual = ", engine.result[elt]["actual"])
         else :
-            print(result[elt])
-    return result 
+            print(engine.result[elt])
+    return engine.result 
 
 
     # Test the 50-30-20 rule analysis
@@ -306,5 +302,4 @@ def main(
 
 
 if __name__ == "__main__":
-    result = {}
     main()
