@@ -20,6 +20,7 @@ from dateutil.relativedelta import relativedelta
 # 5 - progress tracking
 # 6- charts
 
+result = {}
 
 # List of Mandatory (Vital) Expenses
 vital_expenses = [
@@ -49,18 +50,21 @@ non_mandatory_expenses = [
     "socializing",
     "events",
 ]
-result = {}
 
 class Finances(Fact):
     """Fact containing information about the financial situation."""
     pass
 
 class SavingsGoalTracker(KnowledgeEngine):
+    # def __init__(self):
+    #     super().__init__()
+    #     self.result = {}
 
-    @Rule(Fact(monthly_income=MATCH.income), Fact(monthly_expenses=MATCH.expenses))
-    def calculate_savings_rate(self, income, expenses):
+    @Rule(Fact(goal_description=MATCH.goal), Fact(monthly_income=MATCH.income), Fact(monthly_expenses=MATCH.expenses))
+    def calculate_savings_rate(self, goal, income, expenses):
         """Calculates the monthly savings rate."""
         savings_rate = max(income - expenses,0)
+        result["goal_description"]=goal
         result["savings_rate"] = (f"Calculated savings rate: {savings_rate}")
         self.declare(Fact(savings_rate=savings_rate))
 
@@ -142,9 +146,10 @@ class SavingsGoalTracker(KnowledgeEngine):
           Fact(savings_rate=MATCH.savings_rate),
           Fact(target_amount=MATCH.target),
           Fact(timeline=MATCH.timeline),
+          Fact(non_vital_expenses = MATCH.non_vital_expenses),
           Fact(current_savings=MATCH.savings),
           )
-    def suggest_budget_adjustments(self, target, savings, savings_rate, timeline):
+    def suggest_budget_adjustments(self, target, savings, non_vital_expenses, savings_rate, timeline):
         """Suggests budget adjustments to meet savings goals."""
         
         if(savings_rate == 0) :
@@ -156,12 +161,23 @@ class SavingsGoalTracker(KnowledgeEngine):
             months_needed = (int) (total_needed / savings_rate)
             now = datetime.now()
             result_date = now + relativedelta(months=months_needed)
+            formatted_date = result_date.strftime("%Y-%m")  # 'YYYY-MM'
+
+            if sum(non_vital_expenses.values()) > 0 : 
+                reduce_disctretionary = "Consider reducing discretionary expenses to increase your savings rate."
+            else :
+                reduce_disctretionary = ""
             # if essentials_over:
             #     result["budget_adjustement"]+= """You are overspending on essentials. You need to adjust"""
             # if not discretionary_under_30:
             #     result["budget_adjustement"]+= """Consider reducing discretionary expenses to increase your savings rate."""
-            result["budget_adjustement"]= f"""Consider reducing discretionary expenses to increase your savings rate. You need to monthly save {monthly_needed:.2f}, but you are only saving {savings_rate:.2f} that means you need to save an additional {additional_needed:.2f} per month.
-            Otherwise, your goal will be reached, approximately, in {result_date}."""
+            result["budget_adjustement_solution_1"] = [monthly_needed, (datetime.now() + relativedelta(months=timeline)).strftime("%Y-%m")]
+            result["budget_adjustement_solution_2"] = [savings_rate,formatted_date]
+            print("First solution  : ", result["budget_adjustement_solution_1"])
+            print("Second solution  : ", result["budget_adjustement_solution_2"])
+
+            result["budget_adjustement"]= f"""{reduce_disctretionary} You need to monthly save {monthly_needed:.2f}, but you are only saving {savings_rate:.2f} that means you need to save an additional {additional_needed:.2f} per month.
+            Otherwise, your goal will be reached, approximately, in {formatted_date}."""
 
 def verifyExpenseIsMandatory(expense_name):
     return expense_name in vital_expenses
@@ -196,7 +212,7 @@ def apply_50_30_20_rule(income, vital_expenses, non_vital_expenses):
     }
 
 def create_financial_data (
-        vital_expenses_data, non_vital_expenses_data, goal_description, income, saving_target, saving, saving_timeline 
+        vital_expenses_data, non_vital_expenses_data, goal_description, income, saving_target, saving, saving_timeline
         ):
     engine = SavingsGoalTracker()
 
@@ -209,6 +225,7 @@ def create_financial_data (
     finance_data['saving_target'] = saving_target
     finance_data['saving'] = saving
     finance_data['saving_timeline'] = saving_timeline
+    finance_data['goal_description']=goal_description
 
     engine.declare(Finances(**finance_data))
 
@@ -218,8 +235,9 @@ def main(
         vital_expenses_data, non_vital_expenses_data, goal_description, income, saving_target, saving, saving_timeline 
     ):
 
+
     finance_data = create_financial_data(
-        vital_expenses_data, non_vital_expenses_data, goal_description, income, saving_target, saving, saving_timeline 
+        vital_expenses_data, non_vital_expenses_data, goal_description, income, saving_target, saving, saving_timeline
     )
     # Initialize the expert system
     engine = SavingsGoalTracker()
@@ -236,6 +254,8 @@ def main(
     engine.declare(Fact(monthly_expenses=total_expenses))
     engine.declare(Fact(vital_expenses = vital_expenses_data))
     engine.declare(Fact(non_vital_expenses = non_vital_expenses_data))
+    engine.declare(Fact(goal_description = goal_description))
+
 
     # Run the expert system
     print("Running the Savings Goal Tracker Expert System...\n")
@@ -286,4 +306,5 @@ def main(
 
 
 if __name__ == "__main__":
+    result = {}
     main()
