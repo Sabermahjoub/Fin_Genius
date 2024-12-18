@@ -2,7 +2,7 @@
     "test": {
         "result": {
             "goal_description": "Buy a car",
-            "savings_rate": "Calculated savings rate: 1200.0",
+            "savings_rate": "Calculated savings rate: 1500.0",
             "feasibility_check": "Goal is achievable without considering your current savings.",
             "milestone": "To reach your goal, save 600.00 per month.",
             "savings_exceeds_milestone": "You can save more than the required amount.",
@@ -14,15 +14,14 @@
                     400.0
                 ],
                 "actual": [
-                    800.0,
+                    500.0,
                     0,
-                    1200.0
+                    1500.0
                 ]
             }
         },
         "vital_expenses": {
-            "utilities": 500.0,
-            "transportation": 300.0
+            "transportation": 500.0
         },
         "non_vital_expenses": {},
         "income": 2000.0

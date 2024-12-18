@@ -45,7 +45,7 @@ non_mandatory_expenses = [
     "shopping",
     "gym_membership",
     "beauty_care",
-    "alcohol",
+    "smoking",
     "socializing",
     "events",
 ]
