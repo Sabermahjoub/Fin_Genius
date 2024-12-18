@@ -4,12 +4,28 @@ import json , re
 import plotly.express as px
 import os
 
+#date import
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+
 
 # Page Title
 st.title("📊 Charts Dashboard")
 st.write("Welcome to the Charts Dashboard! Explore insights with interactive charts.")
 
 username = st.session_state["authenticated_user"]
+
+#  target_timeline is a string of the format  example: 2025-08
+def generate_timeline(timeline_length) : 
+    timeline_list = []
+    date_now = datetime.now()
+    for i in range(1,timeline_length+1):
+        date_next_month = date_now + relativedelta(months=1)
+        timeline_list.append(date_next_month.strftime("%Y-%m") )
+        date_now = date_next_month
+    print(timeline_list)
+    return timeline_list
+
 
 
 # Chart for solution proposed from the expert advisor (with timelines)
@@ -23,17 +39,22 @@ def display_line_charts(data):
     
     # Determine the maximum length
     max_length = max(length_1, length_2)
+
+    first_saving_plan = generate_timeline(length_1)
+    second_saving_plan = generate_timeline(length_2)
+
     
     # Fill shorter arrays with 0
-    first_saving_plan = [data["budget_adjustement_solution_1"][0]] * length_1 + [0] * (max_length - length_1)
-    second_saving_plan = [data["budget_adjustement_solution_2"][0]] * length_2 + [0] * (max_length - length_2)
+    first_saving_plan_data = [data["budget_adjustement_solution_1"][0]] * length_1 + [0] * (max_length - length_1)
+    second_saving_plan_data = [data["budget_adjustement_solution_2"][0]] * length_2 + [0] * (max_length - length_2)
     
     # Create a DataFrame
     chart_data = pd.DataFrame(
         {
-            "Month": list(range(1, max_length + 1)),  # X-axis for months
-            "Needed savings per month": first_saving_plan,
-            "Current savings per month": second_saving_plan,
+            # "Month": list(range(1, max_length + 1)),  # X-axis for months
+            "Month": first_saving_plan,  # X-axis for months
+            "Needed savings per month": first_saving_plan_data,
+            "Current savings per month": second_saving_plan_data,
         }
     )
      # Create a Plotly chart with axis labels
@@ -47,9 +68,9 @@ def display_line_charts(data):
     fig.update_yaxes(title_text="Savings Amount (TND)")  # Y-axis label
     fig.update_xaxes(title_text="Months")             # X-axis label
     
+    # Plot the line chart
     st.plotly_chart(fig)
     
-    # Plot the line chart
     # st.line_chart(chart_data, x="Month", y=["First saving plan", "Second saving plan"])
 
 
