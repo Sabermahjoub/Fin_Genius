@@ -21,7 +21,7 @@ Welcome to FinGenius - Your Expert System-Powered Financial Planning Assistant
 
 FinGenius is an intelligent financial planning assistant that combines the power of expert systems with a user-friendly interface. Built using Python, Streamlit, and Experta, it helps users make informed financial decisions through advanced rule-based analysis and charts visualizations.
 
-![screenshot](Demo_Images/Home.png)
+![screenshot](Demo_Images/Home.PNG)
 
 ## Features
 
@@ -93,9 +93,16 @@ streamlit run src/main-app.py
 
 2. Access the web interface at `http://localhost:8501`
 
-3. Use the sidebar to navigate between features:
+3. Authenticate yourself :
+
+     ![screenshot](Demo_Images/authentication.png)
+
+5. Use the sidebar to navigate between features:
    - Advisor (Savings Goal Tracker + Budget Allocator)
+      ![screenshot](Demo_Images/Advisor.png)
+
    - Charts
+      ![screenshot](Demo_Images/Charts.png)
 
 
 ## Dependencies
